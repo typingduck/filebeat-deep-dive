@@ -1,0 +1,23 @@
+
+filebeat.prospectors:
+
+  - type: log
+    paths:
+      # Might want to remove old containers before running this
+      - '/var/lib/docker/containers/*/*.log'
+    json:
+      message_key: log
+      keys_under_root: true
+    multiline:
+      pattern: '^[[:space:]]+at |^Caused by:'
+      negate: false
+      match: after
+    processors:
+      - add_docker_metadata: ~
+
+output:
+  file:
+    path: "/usr/share/filebeat/data/output"
+    filename: filebeat_output.json
+    pretty: true
+

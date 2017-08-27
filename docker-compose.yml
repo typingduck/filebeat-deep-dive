@@ -1,0 +1,27 @@
+version: '2'
+
+services:
+
+  # Simulate a standard running program.
+  fake_service:
+    image: bash:4.4
+    command: ["bash", "/fake_service.sh"]
+    labels:
+      io.typingduck.env:  "live"
+      io.typingduck.env2: "something"
+    volumes:
+      # Where filebeat will write logs
+      - ./fake_service.sh:/fake_service.sh
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:6.0.0-beta1
+    volumes:
+      # Where filebeat will write logs
+      - ./:/usr/share/filebeat/data/output
+      # configuration
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
+      # mount where docker logs are
+      - /var/lib/docker/containers:/var/lib/docker/containers
+      # To request container info from docker
+      - /var/run/docker.sock:/var/run/docker.sock
+    user: root  # temporary fix for filebeat not having access to docker.sock
